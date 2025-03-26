@@ -20,12 +20,11 @@ jobs:
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-      - name: Fetch Spec Repo via GitHub API
+      - name: Install CocoaPods Dependencies
         run: |
-          mkdir -p ~/.cocoapods/repos/gonativeio-gonative-specs
-          curl -L https://github.com/gonativeio/gonative-specs/archive/main.tar.gz | tar -xz -C ~/.cocoapods/repos/gonativeio-gonative-specs --strip-components=1
-          pod install
-
+           pod repo remove gonativeio-gonative-specs || true
+           pod repo add gonativeio-gonative-specs https://github.com/gonativeio/gonative-specs.git
+           pod install
 
       - name: Build IPA (Without Signing)
         run: |
