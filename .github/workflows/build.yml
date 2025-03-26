@@ -1,0 +1,49 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual runs
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Install CocoaPods Dependencies
+  run: |
+    pod repo remove gonativeio-gonative-specs || true
+    pod repo add gonativeio-gonative-specs https://github.com/gonativeio/gonative-specs.git
+    pod install
+
+      - name: Build IPA (Without Signing)
+        run: |
+          xcodebuild clean archive \
+            -workspace "wikiHowtiengViet.xcworkspace" \
+            -scheme "wikiHowtiengViet" \
+            -archivePath $RUNNER_TEMP/app.xcarchive \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/app.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/build \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-App
+          path: $RUNNER_TEMP/build/*.ipa
