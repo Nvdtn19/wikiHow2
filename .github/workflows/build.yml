@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build archive with signing disabled
         run: |
@@ -54,7 +54,7 @@ jobs:
             -exportOptionsPlist ExportOptions.plist
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: wikiHowtiengViet.ipa
           path: build/wikiHowtiengViet.ipa
